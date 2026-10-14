@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import estado %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<h1>Panel general</h1>
+<p class="nota">Cada tarjeta se llena cuando el integrante responsable implementa la función indicada.</p>
+
+<section class="tarjetas">
+  <article class="tarjeta">
+    <h3>Libros</h3>
+    <p class="funcion">listar_libros()</p>
+    {% if libros.ok %}
+      <p class="cifra">{{ libros.valor|length }}</p>
+      <p>{{ libros.valor|selectattr('disponible')|list|length }} disponibles</p>
+    {% else %}{{ estado(libros) }}{% endif %}
+  </article>
+
+  <article class="tarjeta">
+    <h3>Socios</h3>
+    <p class="funcion">estadisticas_socios()</p>
+    {% if stats.ok %}
+      <p class="cifra">{{ stats.valor.total }}</p>
+      <p>{{ stats.valor.activos }} activos · {{ stats.valor.suspendidos }} suspendidos</p>
+    {% else %}{{ estado(stats) }}{% endif %}
+  </article>
+
+  <article class="tarjeta">
+    <h3>Préstamos</h3>
+    <p class="funcion">reporte_prestamos()</p>
+    {% if reporte.ok %}
+      <p class="cifra">{{ reporte.valor.activos }}</p>
+      <p>activos de {{ reporte.valor.total }} · multas ${{ '%.2f'|format(reporte.valor.multas_cobradas) }}</p>
+    {% else %}{{ estado(reporte) }}{% endif %}
+  </article>
+
+  <article class="tarjeta">
+    <h3>Vencidos</h3>
+    <p class="funcion">prestamos_vencidos()</p>
+    {% if vencidos.ok %}
+      <p class="cifra {{ 'cifra-mal' if vencidos.valor }}">{{ vencidos.valor|length }}</p>
+      <p>préstamos fuera de fecha</p>
+    {% else %}{{ estado(vencidos) }}{% endif %}
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_macros.html" import estado, etiqueta %}
+{% block titulo %}Libros{% endblock %}
+{% block contenido %}
+<h1>Libros <small>Integrante A · modulos/libros.py</small></h1>
+
+<div class="dos-columnas">
+  <section class="panel">
+    <form class="filtros" method="get">
+      <input type="search" name="q" value="{{ q }}" placeholder="Buscar por título o autor">
+      <select name="categoria">
+        <option value="">Todas las categorías</option>
+        {% for c in CATEGORIAS %}<option {{ 'selected' if c == categoria }}>{{ c }}</option>{% endfor %}
+      </select>
+      <select name="orden">
+        <option value="">Ordenar por…</option>
+        {% for o in ORDENES_LIBRO %}<option value="{{ o }}" {{ 'selected' if o == orden }}>{{ o }}</option>{% endfor %}
+      </select>
+      <button>Aplicar</button>
+      <a class="boton-texto" href="{{ url_for('ver_libros') }}">Limpiar</a>
+    </form>
+    <p class="funcion">Usando {{ modo }}</p>
+
+    {% if lista.ok %}
+      <table>
+        <thead><tr><th>Id</th><th>Título</th><th>Autor</th><th>Año</th><th>Categoría</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for l in lista.valor %}
+          <tr>
+            <td>{{ l.id }}</td><td>{{ l.titulo }}</td><td>{{ l.autor }}</td><td>{{ l.anio }}</td>
+            <td>{{ l.categoria }}</td><td>{{ etiqueta(l.estado) }}</td>
+            <td class="acciones">
+              <a href="{{ url_for('editar_libro', libro_id=l.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('eliminar_libro', libro_id=l.id) }}" class="en-linea">
+                <button class="boton-texto peligro" onclick="return confirm('¿Eliminar este libro?')">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="vacio">Sin resultados</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}{{ estado(lista) }}{% endif %}
+  </section>
+
+  <aside class="panel">
+    <h2>Agregar libro</h2>
+    <p class="funcion">agregar_libro()</p>
+    <form method="post" action="{{ url_for('agregar_libro') }}" class="formulario">
+      <label>Título <input name="titulo"></label>
+      <label>Autor <input name="autor"></label>
+      <label>ISBN (13 dígitos) <input name="isbn" placeholder="978-607-000-000-0"></label>
+      <label>Año <input name="anio" inputmode="numeric"></label>
+      <label>Categoría
+        <select name="categoria">{% for c in CATEGORIAS %}<option>{{ c }}</option>{% endfor %}</select>
+      </label>
+      <button>Agregar</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

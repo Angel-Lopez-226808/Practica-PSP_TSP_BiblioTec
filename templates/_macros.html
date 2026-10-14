@@ -1,0 +1,13 @@
+{# Muestra el estado de una función de los módulos #}
+{% macro estado(resultado) -%}
+  {% if resultado.pendiente %}
+    <div class="pendiente"><strong>Pendiente</strong> {{ resultado.error }}</div>
+  {% elif not resultado.ok %}
+    <div class="alerta alerta-error">{{ resultado.error }}</div>
+  {% endif %}
+{%- endmacro %}
+
+{% macro etiqueta(texto) -%}
+  {% set clase = {'Disponible': 'ok', 'Activo': 'ok', 'Prestado': 'aviso', 'Suspendido': 'mal'}.get(texto, 'neutra') %}
+  <span class="etiqueta etiqueta-{{ clase }}">{{ texto }}</span>
+{%- endmacro %}

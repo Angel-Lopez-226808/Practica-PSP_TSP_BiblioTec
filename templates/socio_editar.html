@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Editar socio{% endblock %}
+{% block contenido %}
+<h1>Editar socio <small>editar_socio()</small></h1>
+<section class="panel angosto">
+  <form method="post" class="formulario">
+    <label>Nombre <input name="nombre" value="{{ request.form.nombre or socio.nombre }}"></label>
+    <label>Correo <input name="correo" value="{{ request.form.correo or socio.correo }}"></label>
+    <label>Teléfono <input name="telefono" value="{{ request.form.telefono or socio.telefono }}"></label>
+    <p class="nota">Socio núm. {{ socio.id }} · alta {{ socio.fecha_alta }}</p>
+    <div class="botones">
+      <button>Guardar cambios</button>
+      <a class="boton-texto" href="{{ url_for('ver_socios') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

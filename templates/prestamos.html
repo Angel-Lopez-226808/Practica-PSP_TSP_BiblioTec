@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% from "_macros.html" import estado %}
+{% block titulo %}Préstamos{% endblock %}
+{% block contenido %}
+<h1>Préstamos <small>Integrante C · modulos/prestamos.py</small></h1>
+
+<div class="dos-columnas">
+  <section class="panel">
+    <h2>Préstamos activos</h2>
+    <p class="funcion">listar_prestamos_activos() · registrar_devolucion()</p>
+    {% if activos.ok %}
+      <table>
+        <thead><tr><th>Folio</th><th>Libro</th><th>Socio</th><th>Prestado</th><th>Límite</th><th></th></tr></thead>
+        <tbody>
+        {% for p in activos.valor %}
+          <tr>
+            <td>{{ p.id }}</td><td>{{ p.titulo }}</td><td>{{ p.socio }}</td>
+            <td>{{ p.fecha_prestamo }}</td><td>{{ p.fecha_limite }}</td>
+            <td class="acciones">
+              <form method="post" action="{{ url_for('devolver', prestamo_id=p.id) }}" class="en-linea">
+                <button class="boton-texto">Registrar devolución</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="vacio">No hay préstamos activos</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}{{ estado(activos) }}{% endif %}
+
+    <h2>Préstamos vencidos</h2>
+    <p class="funcion">prestamos_vencidos()</p>
+    {% if vencidos.ok %}
+      <table>
+        <thead><tr><th>Folio</th><th>Libro</th><th>Socio</th><th>Límite</th><th>Días de retraso</th><th>Multa estimada</th></tr></thead>
+        <tbody>
+        {% for p in vencidos.valor %}
+          <tr class="fila-mal">
+            <td>{{ p.id }}</td><td>{{ p.titulo }}</td><td>{{ p.socio }}</td><td>{{ p.fecha_limite }}</td>
+            <td>{{ p.dias_retraso }}</td><td>${{ '%.2f'|format(p.multa_estimada) }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="vacio">Ningún préstamo vencido</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}{{ estado(vencidos) }}{% endif %}
+  </section>
+
+  <aside>
+    <section class="panel">
+      <h2>Nuevo préstamo</h2>
+      <p class="funcion">registrar_prestamo()</p>
+      <form method="post" action="{{ url_for('registrar_prestamo') }}" class="formulario">
+        <label>Libro disponible
+          <select name="libro_id">
+            <option value="">Selecciona…</option>
+            {% for l in libros_disp %}<option value="{{ l.id }}">{{ l.titulo }}</option>{% endfor %}
+          </select>
+        </label>
+        <label>Socio activo
+          <select name="socio_id">
+            <option value="">Selecciona…</option>
+            {% for s in socios_act %}<option value="{{ s.id }}">{{ s.id }} · {{ s.nombre }}</option>{% endfor %}
+          </select>
+        </label>
+        <button>Prestar</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Calculadora de multa</h2>
+      <p class="funcion">calcular_multa()</p>
+      <form method="get" class="formulario">
+        <label>Fecha límite <input type="date" name="limite" value="{{ limite }}"></label>
+        <label>Fecha de devolución <input type="date" name="devolucion" value="{{ devolucion }}"></label>
+        <button>Calcular</button>
+      </form>
+      {% if multa %}
+        {% if multa.ok %}<p class="cifra">${{ '%.2f'|format(multa.valor) }}</p>{% else %}{{ estado(multa) }}{% endif %}
+      {% endif %}
+    </section>
+
+    <section class="panel">
+      <h2>Reporte</h2>
+      <p class="funcion">reporte_prestamos()</p>
+      {% if reporte.ok %}
+        {% set r = reporte.valor %}
+        <dl class="resumen">
+          <dt>Total</dt><dd>{{ r.total }}</dd>
+          <dt>Activos</dt><dd>{{ r.activos }}</dd>
+          <dt>Devueltos</dt><dd>{{ r.devueltos }}</dd>
+          <dt>Multas cobradas</dt><dd>${{ '%.2f'|format(r.multas_cobradas) }}</dd>
+        </dl>
+        <h3>Más prestados</h3>
+        <ol>{% for titulo, veces in r.mas_prestados %}<li>{{ titulo }} <span class="nota">({{ veces }})</span></li>{% endfor %}</ol>
+      {% else %}{{ estado(reporte) }}{% endif %}
+    </section>
+  </aside>
+</div>
+{% endblock %}

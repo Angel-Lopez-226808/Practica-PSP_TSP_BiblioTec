@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Editar libro{% endblock %}
+{% block contenido %}
+<h1>Editar libro <small>editar_libro()</small></h1>
+<section class="panel angosto">
+  <form method="post" class="formulario">
+    <label>Título <input name="titulo" value="{{ request.form.titulo or libro.titulo }}"></label>
+    <label>Autor <input name="autor" value="{{ request.form.autor or libro.autor }}"></label>
+    <label>Año <input name="anio" value="{{ request.form.anio or libro.anio }}"></label>
+    <label>Categoría
+      <select name="categoria">
+        {% for c in CATEGORIAS %}<option {{ 'selected' if c == (request.form.categoria or libro.categoria) }}>{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <p class="nota">ISBN {{ libro.isbn }} (no editable)</p>
+    <div class="botones">
+      <button>Guardar cambios</button>
+      <a class="boton-texto" href="{{ url_for('ver_libros') }}">Cancelar</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

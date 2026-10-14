@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import estado, etiqueta %}
+{% block titulo %}Socios{% endblock %}
+{% block contenido %}
+<h1>Socios <small>Integrante B · modulos/socios.py</small></h1>
+
+<section class="tarjetas compactas">
+  {% if stats.ok %}
+    {% for llave, nombre in [('total','Total'),('activos','Activos'),('suspendidos','Suspendidos'),('con_prestamos','Con préstamos'),('con_vencidos','Con vencidos')] %}
+      <article class="tarjeta"><h3>{{ nombre }}</h3><p class="cifra">{{ stats.valor[llave] }}</p></article>
+    {% endfor %}
+  {% else %}
+    <article class="tarjeta ancha"><h3>Estadísticas</h3><p class="funcion">estadisticas_socios()</p>{{ estado(stats) }}</article>
+  {% endif %}
+</section>
+
+<div class="dos-columnas">
+  <section class="panel">
+    <form class="filtros" method="get">
+      <input type="search" name="q" value="{{ q }}" placeholder="Nombre o número de socio">
+      <label class="casilla"><input type="checkbox" name="solo_activos" value="1" {{ 'checked' if solo_activos }}> Solo activos</label>
+      <button>Aplicar</button>
+      <a class="boton-texto" href="{{ url_for('ver_socios') }}">Limpiar</a>
+    </form>
+    <p class="funcion">Usando {{ modo }}</p>
+
+    {% if lista.ok %}
+      <table>
+        <thead><tr><th>Núm.</th><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Alta</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+        {% for s in lista.valor %}
+          <tr>
+            <td>{{ s.id }}</td><td>{{ s.nombre }}</td><td>{{ s.correo }}</td><td>{{ s.telefono }}</td>
+            <td>{{ s.fecha_alta }}</td><td>{{ etiqueta(s.estado) }}</td>
+            <td class="acciones">
+              <a href="{{ url_for('editar_socio', socio_id=s.id) }}">Editar</a>
+              <form method="post" action="{{ url_for('cambiar_estado', socio_id=s.id) }}" class="en-linea">
+                {% if s.activo %}
+                  <input type="hidden" name="activo" value="0"><button class="boton-texto peligro">Suspender</button>
+                {% else %}
+                  <input type="hidden" name="activo" value="1"><button class="boton-texto">Reactivar</button>
+                {% endif %}
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="7" class="vacio">Sin resultados</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    {% else %}{{ estado(lista) }}{% endif %}
+  </section>
+
+  <aside class="panel">
+    <h2>Registrar socio</h2>
+    <p class="funcion">registrar_socio()</p>
+    <form method="post" action="{{ url_for('registrar_socio') }}" class="formulario">
+      <label>Nombre <input name="nombre"></label>
+      <label>Correo <input name="correo" placeholder="nombre@correo.com"></label>
+      <label>Teléfono (10 dígitos) <input name="telefono" placeholder="656 123 4567"></label>
+      <button>Registrar</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}
